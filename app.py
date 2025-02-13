@@ -5,40 +5,6 @@ import json
 
 path = r"C:\Users\saifk\Downloads\BuildersRisk.pdf"
 
-def extract_text_from_pdf(pdf_path):
-
-    extracted_text = []
-    valid_tables = []
-    current_table = []
-
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-
-            page_text = page.extract_text()
-            tables = page.extract_tables()
-
-            if tables:
-                for table in tables:
-                    for row in table:
-                        if any(cell.strip() for cell in row):
-                            current_table.append(row)
-                        else:
-                            if current_table:
-                                valid_tables.append(current_table)
-                                current_table = []
-                        row_text = " ".join(filter(None, row))
-                        page_text = page_text.replace(row_text, "")
-
-
-            for idx, table in enumerate(valid_tables, 1):
-                print(f"Table {idx}: {table}: ")
-                print()
-            if page_text:
-                extracted_text.append(page_text)
-
-    return "\n".join(extracted_text)
-
-
 def categorize_fields(field):
     if re.search(r"\b(From:|To:|Dates:|date)\b", field):
         return "dates"
@@ -88,14 +54,68 @@ def parse_form(text):
 
 
 
+def extract_text_from_pdf(pdf_path):
+    """
+    Extract text from PDF while properly handling tables and avoiding duplicates.
+    
+    Args:
+        pdf_path: Path to the PDF file
+        
+    Returns:
+        str: Extracted text with tables properly formatted
+    """
+    document_content = []
+    
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            elements = []
+            
+            # Extract tables first
+            tables = page.extract_tables()
+            
+            # Process tables
+            if tables:
+                for table in tables:
+                    formatted_rows = []
+                    for row in table:
+                        # Filter out None/empty cells and strip whitespace
+                        cleaned_row = [str(cell).strip() if cell else '' for cell in row]
+                        if any(cleaned_row):  # Only include rows with content
+                            formatted_row = ' '.join(cell for cell in cleaned_row if cell)
+                            if formatted_row:  # Only add non-empty rows
+                                formatted_rows.append(formatted_row)
+                    if formatted_rows:
+                        table_text = '\n'.join(formatted_rows)
+                        elements.append((0, "-------------------------------------------------Table---------------------------------------------------------------------")) 
+                        elements.append((0, table_text))  # Use 0 as y-position for tables
+                        elements.append((0, "-------------------------------------------------Table---------------------------------------------------------------------")) 
+            
+            # Extract and process regular text
+            text = page.extract_text()
+            if text:
+                # Remove table content from text to avoid duplication
+                for element in elements:
+                    text = text.replace(element[1], '')
+                
+                # Split remaining text into lines and add to elements
+                for line in text.split('\n'):
+                    if line.strip():  # Only add non-empty lines
+                        elements.append((1, line.strip()))  # Use 1 as y-position for text
+            
+            # Add all elements to document content
+            document_content.extend(element[1] for element in elements)
+    
+    return '\n'.join(filter(None, document_content))
+
+
 # Extract text
 clean_text = extract_text_from_pdf(path)
 
 # Parse form fields
-parsed_fields = parse_form(clean_text)
+# parsed_fields = parse_form(clean_text)
 
 # Print extracted variables
-pretty_json = json.dumps(parsed_fields, indent=4)
+# pretty_json = json.dumps(parsed_fields, indent=4)
 
 # Print the pretty JSON string
-# print(pretty_json)
+print(clean_text)
