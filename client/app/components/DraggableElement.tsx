@@ -1,11 +1,29 @@
+import { useDrag } from "react-dnd";
+import { Plus, Text, List, CheckSquare, Calendar, Hash, Mail } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
-import { useDrag } from 'react-dnd';
-import { ChevronLeft, Settings, Plus, Layers } from 'lucide-react';
-import { useState } from 'react';
+const DRAGGABLE_TYPE = "FORM_ELEMENT";
 
-const DRAGGABLE_TYPE = 'FORM_ELEMENT';
+// Define a type for form element keys
+type FormElementType = "text" | "dropdown" | "checkbox" | "date" | "number" | "email";
 
-const DraggableElement: React.FC<{ type: string; label: string; bgColor: string; borderColor: string; iconColor: string }> = ({ type, label, bgColor, borderColor, iconColor }) => {
+// Define a mapping of form elements to icons
+const ICON_MAP: Record<FormElementType, LucideIcon> = {
+    text: Text,
+    dropdown: List,
+    checkbox: CheckSquare,
+    date: Calendar,
+    number: Hash,
+    email: Mail,
+};
+
+const DraggableElement: React.FC<{ type: string; label: string; bgColor: string; borderColor: string; iconColor: string }> = ({
+    type,
+    label,
+    bgColor,
+    borderColor,
+    iconColor,
+}) => {
     const [{ isDragging }, dragRef] = useDrag(() => ({
         type: DRAGGABLE_TYPE,
         item: { type, label },
@@ -14,6 +32,9 @@ const DraggableElement: React.FC<{ type: string; label: string; bgColor: string;
         }),
     }));
 
+    // Ensure type safety for icons
+    const Icon = (ICON_MAP[type as FormElementType] || Plus) as LucideIcon;
+
     return (
         <div
             ref={dragRef as any}
@@ -21,7 +42,7 @@ const DraggableElement: React.FC<{ type: string; label: string; bgColor: string;
             style={{ opacity: isDragging ? 0.5 : 1 }}
         >
             <div className={`${iconColor} p-1 rounded`}>
-                <Plus className="h-4 w-4" />
+                <Icon className="h-4 w-4" />
             </div>
             <span className="text-neutral-text font-medium">{label}</span>
         </div>

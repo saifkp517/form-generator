@@ -5,10 +5,18 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import LeftSideBar from './components/LeftSideBar';
 import FormContent from './components/FormContent';
+import RightPanel from './components/RightPanel';
 
 export default function Home() {
 
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const [formElements, setFormElements] = useState<{ type: string; label: string }[]>([]);
+  const [selectedElement, setSelectedElement] = useState<number | null>(null);
+
+  const handleElementSelect = (index: number) => {
+    setSelectedElement(index);
+  };
 
 
   return (
@@ -59,50 +67,21 @@ export default function Home() {
 
             {/* Main Content - Form Builder */}
             <div className="bg-white rounded-sm shadow-card p-4 col-span-7 overflow-auto flex flex-col">
-              <FormContent />
+              <FormContent
+                formElements={formElements}
+                setFormElements={setFormElements}
+                selectedElement={selectedElement}
+                onSelectElement={handleElementSelect}
+              />
             </div>
 
             {/* Right Sidebar - Properties */}
             <div className="bg-white rounded-sm shadow-card col-span-3 overflow-auto">
-              <div className="p-3 bg-primary text-white">
-                <h3 className="font-medium">Element Properties</h3>
-              </div>
-
-              <div className="p-4">
-                <p className="text-sm text-neutral-muted mb-4">Select an element to configure its properties</p>
-
-                <div className="border border-dashed border-neutral-muted rounded-sm p-4 bg-neutral-light flex flex-col items-center justify-center">
-                  <Settings className="h-8 w-8 text-neutral-muted mb-2" />
-                  <p className="text-neutral-muted text-center text-sm">
-                    No element selected. Click on an element in the form builder to edit its properties.
-                  </p>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-neutral-text">Templates</label>
-                    <div className="flex flex-wrap gap-2">
-                      <div className="px-2 py-1.5 bg-accent-success/10 text-accent-success text-xs rounded-full">Contact Form</div>
-                      <div className="px-2 py-1.5 bg-accent-info/10 text-accent-info text-xs rounded-full">Survey</div>
-                      <div className="px-2 py-1.5 bg-accent-purple/10 text-accent-purple text-xs rounded-full">Registration</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-neutral-text">Form Settings</label>
-                    <div className="space-y-2">
-                      <button className="flex items-center justify-between w-full p-2.5 bg-neutral-light hover:bg-neutral-dark rounded-md transition-colors text-sm">
-                        <span>Form Validation</span>
-                        <ArrowRight className="h-4 w-4 text-neutral-muted" />
-                      </button>
-                      <button className="flex items-center justify-between w-full p-2.5 bg-neutral-light hover:bg-neutral-dark rounded-md transition-colors text-sm">
-                        <span>Submission Settings</span>
-                        <ArrowRight className="h-4 w-4 text-neutral-muted" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <RightPanel
+                selectedElement={formElements[selectedElement!]} // Pass selected element
+                setFormElements={setFormElements}
+                selectedIndex={selectedElement}
+              />
             </div>
 
 

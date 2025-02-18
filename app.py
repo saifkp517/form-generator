@@ -3,6 +3,7 @@ import re
 import json
 
 
+
 path = r"C:\Users\saifk\Downloads\BuildersRisk.pdf"
 
 def categorize_fields(field):
@@ -17,7 +18,10 @@ def categorize_fields(field):
 
     return "single_line"
 
+parsed_fields = []
+
 def parse_form(text):
+
 
     categorized_fields = {
         "dates": [],
@@ -48,22 +52,14 @@ def parse_form(text):
 
     for field in fields:
         category = categorize_fields(field)
-        categorized_fields[category].append(field)
+        parsed_fields.append(f"{field}({category})")
+        # categorized_fields[category].append(field)
     
-    return categorized_fields
-
+    # return categorized_fields
 
 
 def extract_text_from_pdf(pdf_path):
-    """
-    Extract text from PDF while properly handling tables and avoiding duplicates.
-    
-    Args:
-        pdf_path: Path to the PDF file
-        
-    Returns:
-        str: Extracted text with tables properly formatted
-    """
+
     document_content = []
     
     with pdfplumber.open(pdf_path) as pdf:
@@ -86,9 +82,9 @@ def extract_text_from_pdf(pdf_path):
                                 formatted_rows.append(formatted_row)
                     if formatted_rows:
                         table_text = '\n'.join(formatted_rows)
-                        elements.append((0, "-------------------------------------------------Table---------------------------------------------------------------------")) 
+                        elements.append((0, "start-------------------------------------------------Table---------------------------------------------------------------------")) 
                         elements.append((0, table_text))  # Use 0 as y-position for tables
-                        elements.append((0, "-------------------------------------------------Table---------------------------------------------------------------------")) 
+                        elements.append((0, "end-------------------------------------------------Table---------------------------------------------------------------------")) 
             
             # Extract and process regular text
             text = page.extract_text()
@@ -112,10 +108,10 @@ def extract_text_from_pdf(pdf_path):
 clean_text = extract_text_from_pdf(path)
 
 # Parse form fields
-# parsed_fields = parse_form(clean_text)
+parse_form(clean_text)
 
 # Print extracted variables
-# pretty_json = json.dumps(parsed_fields, indent=4)
+pretty_json = json.dumps(parsed_fields, indent=4)
 
 # Print the pretty JSON string
 print(clean_text)

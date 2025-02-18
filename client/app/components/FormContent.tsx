@@ -17,20 +17,20 @@ type FormElementColors = {
 };
 const getElementColor = (type: string): string => {
     const colors: Record<string, string> = {
-        'text': 'bg-primary/20', 'textarea': 'bg-primary/20', 'dropdown': 'bg-accent-info/20',
-        'checkbox': 'bg-accent-purple/20', 'radio': 'bg-secondary/20', 'date': 'bg-accent-pink/20',
-        'number': 'bg-accent-warning/20', 'email': 'bg-accent-success/20', 'file': 'bg-accent-error/20'
+        'text': 'bg-primary/80', 'textarea': 'bg-primary/60', 'dropdown': 'bg-accent-info/80',
+        'checkbox': 'bg-accent-purple/80', 'radio': 'bg-secondary/80', 'date': 'bg-accent-pink/80',
+        'number': 'bg-accent-warning/80', 'email': 'bg-accent-success/80', 'file': 'bg-accent-error/80'
     };
     return colors[type] || 'bg-neutral-muted';
 };
 
 
 
-export default function FormContent() {
+export default function FormContent({ formElements, setFormElements, selectedElement, onSelectElement }: any) {
 
     const [hoveredElement, setHoveredElement] = useState<number | null>(null);
 
-    const [formElements, setFormElements] = useState<{ type: string; label: string }[]>([]); // State to store dropped elements
+
 
     const [{ isOver }, dropRef] = useDrop(() => ({
         accept: "FORM_ELEMENT", // Accept elements of this type
@@ -44,18 +44,18 @@ export default function FormContent() {
 
     const removeElement = (index: number) => {
         // Filter out the element at the given index
-        setFormElements((prevElements) => prevElements.filter((_, i) => i !== index));
-      };
-      
+        setFormElements((prevElements: any) => prevElements.filter((_: any, i: number) => i !== index));
+    };
+
 
     return (
         <div
             ref={dropRef as any}
             className={`bg-white rounded-lg transition-all overflow-hidden h-full ${isOver
-                    ? "border-2 border-primary border-solid bg-primary/5"
-                    : formElements.length === 0
-                        ? "border border-dashed border-neutral-muted bg-neutral-light"
-                        : "border border-neutral-dark"
+                ? "border-2 border-primary border-solid bg-primary/5"
+                : formElements.length === 0
+                    ? "border border-dashed border-neutral-muted bg-neutral-light"
+                    : "border border-neutral-dark"
                 }`}
         >
             {formElements.length === 0 ? (
@@ -89,13 +89,14 @@ export default function FormContent() {
                     {/* Form Elements - Maximum visibility */}
                     <div className="flex-grow overflow-y-auto">
                         <div className="p-2 space-y-0.5">
-                            {formElements.map((element, index) => (
+                            {formElements.map((element: any, index: any) => (
                                 <div
                                     key={index}
                                     className={`relative border rounded transition-all ${hoveredElement === index
-                                            ? "border-primary bg-primary/5"
-                                            : "border-neutral-dark/10 hover:border-primary/30"
+                                        ? "border-primary bg-primary/5"
+                                        : "border-neutral-dark/10 hover:border-primary/30"
                                         }`}
+                                    onClick={() => onSelectElement(index)}
                                     onMouseEnter={() => setHoveredElement(index)}
                                     onMouseLeave={() => setHoveredElement(null)}
                                 >
@@ -113,8 +114,8 @@ export default function FormContent() {
                                         <button
                                             onClick={() => removeElement(index)}
                                             className={`p-0.5 rounded ${hoveredElement === index
-                                                    ? "text-accent-error"
-                                                    : "text-neutral-muted opacity-60"
+                                                ? "text-accent-error"
+                                                : "text-neutral-muted opacity-60"
                                                 }`}
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
